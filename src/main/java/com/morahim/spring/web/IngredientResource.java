@@ -1,15 +1,11 @@
 package com.morahim.spring.web;
 
 import com.morahim.spring.Ingredient;
-import com.morahim.spring.Taco;
 import lombok.Getter;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import java.util.Date;
-import java.util.List;
-
+@Relation(value = "ingredient", collectionRelation = "ingredients")
 public class IngredientResource extends RepresentationModel<IngredientResource> {
 
     @Getter
