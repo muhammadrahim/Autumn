@@ -7,6 +7,7 @@ import com.morahim.spring.data.IngredientRepository;
 import com.morahim.spring.data.TacoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -25,14 +26,14 @@ import static com.morahim.spring.Ingredient.Type;
 @SessionAttributes("order")
 public class DesignTacoController {
 
-    private final IngredientRepository ingredientRepo;
+    private final IngredientRepository ingredientRepository;
 
-    private TacoRepository designRepo;
+    private TacoRepository tacoRepository;
 
     @Autowired
-    public DesignTacoController(IngredientRepository ingredientRepo, TacoRepository designRepo) {
-        this.ingredientRepo = ingredientRepo;
-        this.designRepo = designRepo;
+    public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
+        this.ingredientRepository = ingredientRepository;
+        this.tacoRepository = tacoRepository;
     }
 
     @ModelAttribute(name = "order")
@@ -48,7 +49,7 @@ public class DesignTacoController {
     @GetMapping
     public String showDesignForm(Model model) {
         List<Ingredient> ingredients = new ArrayList<>();
-        ingredientRepo.findAll().forEach(ingredients::add);
+        ingredientRepository.findAll().forEach(ingredients::add);
         Type[] types = Ingredient.Type.values();
         for (Type type : types) {
             model.addAttribute(type.toString().toLowerCase(),
@@ -63,9 +64,15 @@ public class DesignTacoController {
         if (errors.hasErrors()) {
             return "design";
         }
-        Taco saved = designRepo.save(design);
+        Taco saved = tacoRepository.save(design);
         order.addDesign(saved);
         return "redirect:/orders/current";
+    }
+
+    @PostMapping(consumes="application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Taco postTaco(@RequestBody Taco taco) {
+        return tacoRepository.save(taco);
     }
 
     private List<Ingredient> filterByType(
