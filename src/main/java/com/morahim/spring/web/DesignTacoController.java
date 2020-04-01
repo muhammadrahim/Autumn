@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -36,8 +38,6 @@ public class DesignTacoController {
 
     private TacoRepository tacoRepository;
 
-
-    EntityLinks entityLinks;
 
     @Autowired
     public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
@@ -67,22 +67,24 @@ public class DesignTacoController {
         return "design";
     }
 
-    @GetMapping("/recent")
+    @GetMapping("/all")
     public CollectionModel<TacoResource> getAllTacos() {
         Iterable<Taco> tacos = tacoRepository.findAll();
         return new TacoResourceAssembler()
                 .toCollectionModel(tacos)
                 .add(WebMvcLinkBuilder.linkTo(DesignTacoController.class)
-                        .slash("recent")
+                        .slash("all")
                         .withRel("all"));
     }
 
+    @GetMapping("/recent")
+    public Flux<Taco> getRecentTacos() {
+        return Flux.fromIterable(tacoRepository.findAll()).take(10);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Taco> tacoById(@PathVariable("id") Long id) {
-        Optional<Taco> optTaco = tacoRepository.findById(id);
-        return optTaco.map(DesignTacoController::okHttp).orElseGet(
-                DesignTacoController::notFoundHttp
-        );
+    public Mono<Taco> tacoById(@PathVariable("id") Long id) {
+        return Mono.justOrEmpty(tacoRepository.findById(id));
     }
 
 
@@ -104,7 +106,6 @@ public class DesignTacoController {
         order.addDesign(saved);
         return "redirect:/orders/current";
     }
-
 
     @DeleteMapping("/{orderId}")
     @ResponseStatus(code=HttpStatus.NO_CONTENT)
