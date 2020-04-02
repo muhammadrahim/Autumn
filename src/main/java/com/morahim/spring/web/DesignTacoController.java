@@ -3,26 +3,25 @@ package com.morahim.spring.web;
 import com.morahim.spring.Ingredient;
 import com.morahim.spring.Order;
 import com.morahim.spring.Taco;
+import com.morahim.spring.WebConfig;
 import com.morahim.spring.data.IngredientRepository;
 import com.morahim.spring.data.TacoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.morahim.spring.Ingredient.Type;
@@ -37,7 +36,6 @@ public class DesignTacoController {
     private final IngredientRepository ingredientRepository;
 
     private TacoRepository tacoRepository;
-
 
     @Autowired
     public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
@@ -87,13 +85,12 @@ public class DesignTacoController {
         return Mono.justOrEmpty(tacoRepository.findById(id));
     }
 
-
-    private static ResponseEntity<Taco> notFoundHttp() {
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-    }
-
-    private static ResponseEntity<Taco> okHttp(Taco taco) {
-        return new ResponseEntity<>(taco, HttpStatus.OK);
+    @GetMapping("/ingredients/{id}")
+    public Mono<Ingredient> ingredientById(@PathVariable("id") Long ingredientId) {
+        return WebClient.create()
+                .put().uri("http://localhost:8080/ingredients/{id}", ingredientId)
+                .retrieve()
+                .bodyToMono(Ingredient.class);
     }
 
     @PostMapping
@@ -108,11 +105,12 @@ public class DesignTacoController {
     }
 
     @DeleteMapping("/{orderId}")
-    @ResponseStatus(code=HttpStatus.NO_CONTENT)
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteOrder(@PathVariable("orderId") Long orderId) {
         try {
             tacoRepository.deleteById(orderId);
-        } catch (EmptyResultDataAccessException ignored) { }
+        } catch (EmptyResultDataAccessException ignored) {
+        }
     }
 
     private List<Ingredient> filterByType(
