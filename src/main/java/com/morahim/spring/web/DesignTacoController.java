@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.morahim.spring.Ingredient.Type;
@@ -81,12 +82,12 @@ public class DesignTacoController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Taco> tacoById(@PathVariable("id") Long id) {
+    public Mono<Taco> tacoById(@PathVariable("id") UUID id) {
         return Mono.justOrEmpty(tacoRepository.findById(id));
     }
 
     @GetMapping("/ingredients/{id}")
-    public Mono<Ingredient> ingredientById(@PathVariable("id") Long ingredientId) {
+    public Mono<Ingredient> ingredientById(@PathVariable("id") UUID ingredientId) {
         return WebClient.create()
                 .put().uri("http://localhost:8080/ingredients/{id}", ingredientId)
                 .retrieve()
@@ -106,7 +107,7 @@ public class DesignTacoController {
 
     @DeleteMapping("/{orderId}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteOrder(@PathVariable("orderId") Long orderId) {
+    public void deleteOrder(@PathVariable("orderId") UUID orderId) {
         try {
             tacoRepository.deleteById(orderId);
         } catch (EmptyResultDataAccessException ignored) {
