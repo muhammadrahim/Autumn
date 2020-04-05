@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Data
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class Ingredient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private final String id;
+    private final UUID id;
     private final String name;
     @Enumerated(EnumType.STRING)
     private final Type type;

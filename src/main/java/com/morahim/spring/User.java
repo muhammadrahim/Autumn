@@ -1,6 +1,7 @@
 package com.morahim.spring;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,7 +25,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
     private final String username;
     private final String password;
