@@ -1,1 +1,1 @@
-# Fun with Spring
+Builds upon Manninger's 'Spring in Action' book
